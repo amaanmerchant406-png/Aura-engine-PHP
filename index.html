@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AuraPHP // Elite AI Refactor Suite</title>
+    <title>AuraPHP Engine // Core Operational Console</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -16,157 +16,245 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-                    animation: { 'shimmer': 'shimmer 2s linear infinite' },
-                    keyframes: { shimmer: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } } }
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    animation: { 
+                        'blob': 'blob 7s infinite',
+                        'sweep': 'sweep 2s linear infinite',
+                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    },
+                    keyframes: { 
+                        blob: { '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' }, '33%': { transform: 'translate(30px, -50px) scale(1.1)' }, '66%': { transform: 'translate(-20px, 20px) scale(0.9)' } },
+                        sweep: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(200%)' } },
+                        'pulse-glow': { '0%, 100%': { opacity: 1, filter: 'brightness(1)' }, '50%': { opacity: .7, filter: 'brightness(1.5)' } }
+                    }
                 }
             }
         }
     </script>
     <style>
         [x-cloak] { display: none !important; }
-        .theme-transition { transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease; }
-        pre, code { max-width: 100%; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
-        .shimmer-bar { background: linear-gradient(90deg, #8b5cf6 25%, #a78bfa 50%, #8b5cf6 75%); background-size: 200% 100%; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .dark .glass-panel {
+            background: rgba(9, 9, 11, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Animated Button Border */
+        .btn-premium { position: relative; overflow: hidden; transition: all 0.3s ease; }
+        .btn-premium::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg); animation: sweep 3s infinite;
+        }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-50 min-h-screen theme-transition antialiased px-4 sm:px-6 lg:px-8">
+<body class="bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-50 min-h-screen transition-colors duration-500 relative overflow-x-hidden selection:bg-violet-500/30">
 
-    <div class="fixed bottom-5 right-5 z-50 max-w-sm w-full space-y-3 pointer-events-none">
-        <template x-if="toast.show">
-            <div x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2 sm:translate-y-0 sm:translate-x-2" x-transition:enter-end="opacity-100 translate-y-0 sm:translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="pointer-events-auto bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-4 rounded-xl shadow-2xl flex items-center gap-3">
-                <div class="p-1.5 rounded-lg bg-red-500/10 text-red-500" x-show="toast.type === 'error'">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>
-                <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500" x-show="toast.type === 'success'">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <p x-text="toast.message" class="text-xs font-medium text-slate-700 dark:text-zinc-300"></p>
-            </div>
-        </template>
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-violet-600/20 dark:bg-violet-900/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-70 animate-blob"></div>
+        <div class="absolute top-[20%] right-[-10%] w-96 h-96 bg-fuchsia-600/20 dark:bg-fuchsia-900/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-32 left-[20%] w-96 h-96 bg-blue-600/20 dark:bg-blue-900/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-70 animate-blob animation-delay-4000"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] z-0"></div>
     </div>
 
-    <div x-show="showLimitModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="showLimitModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-950/40 dark:bg-black/70 backdrop-blur-sm transition-opacity" @click="showLimitModal = false"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showLimitModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full p-6 space-y-4">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-amber-500/10 text-amber-500 sm:mx-0">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+    <div class="fixed bottom-6 right-6 z-[100] max-w-sm w-full space-y-3 pointer-events-none flex flex-col items-end">
+        <div x-show="toast.show" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="transform translate-y-8 opacity-0 scale-95"
+             x-transition:enter-end="transform translate-y-0 opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="transform translate-y-0 opacity-100 scale-100"
+             x-transition:leave-end="transform translate-y-8 opacity-0 scale-95"
+             class="pointer-events-auto glass-panel p-4 rounded-2xl flex items-center gap-4 w-auto min-w-[250px]">
+            <div :class="{ 'bg-red-500/10 text-red-500': toast.type === 'error', 'bg-emerald-500/10 text-emerald-500': toast.type === 'success' }" class="p-2 rounded-xl">
+                <svg x-show="toast.type === 'error'" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <svg x-show="toast.type === 'success'" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <p x-text="toast.message" class="text-sm font-medium text-slate-800 dark:text-zinc-200 tracking-wide"></p>
+        </div>
+    </div>
+
+    <div x-show="showLimitModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center p-4 sm:p-0" role="dialog" aria-modal="true">
+        <div x-show="showLimitModal" 
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md" @click="showLimitModal = false"></div>
+             
+        <div x-show="showLimitModal"
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8 scale-95" x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 scale-100" x-transition:leave-end="opacity-0 translate-y-8 scale-95"
+             class="relative z-10 w-full max-w-md glass-panel rounded-3xl p-8 overflow-hidden shadow-[0_0_50px_-12px_rgba(167,139,250,0.25)] border border-violet-500/20">
+            
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500"></div>
+            
+            <div class="flex flex-col items-center text-center space-y-5">
+                <div class="h-16 w-16 rounded-full bg-violet-500/10 flex items-center justify-center ring-8 ring-violet-500/5 mb-2">
+                    <svg class="h-8 w-8 text-violet-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"></path></svg>
                 </div>
-                <div class="space-y-2">
-                    <h3 class="text-base font-bold text-slate-900 dark:text-zinc-100 font-sans">Guest System Quota Depleted</h3>
-                    <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">You have safely consumed your single complimentary legacy architecture evaluation scan. To instantly provision 10 additional elite computing runs, unlock cloud scaling by completing authentication below.</p>
-                </div>
-                <div class="pt-2 flex flex-col sm:flex-row gap-2 sm:justify-end">
-                    <button @click="showLimitModal = false" class="px-4 py-2 border border-slate-200 dark:border-zinc-800 text-xs font-semibold rounded-xl text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors">Dismiss</button>
-                    <div id="google-auth-modal-mount" class="h-9 shrink-0"></div>
+                
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Authentication Required</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed px-2">
+                    Guest session matrix depleted. Securely authenticate with Google to unlock <span class="text-violet-500 font-semibold">Tier-1 Processing</span> and 10 daily structural optimizations.
+                </p>
+                
+                <div class="w-full pt-4 flex flex-col gap-3">
+                    <div id="google-auth-modal-mount" class="w-full flex justify-center"></div>
+                    <button @click="showLimitModal = false" class="w-full py-2.5 text-sm font-semibold text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-300 transition-colors">Return to Console</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto py-6 sm:py-10">
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 min-h-screen flex flex-col">
         
-        <nav class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-8 sm:mb-12 pb-6 border-b border-slate-200 dark:border-zinc-900 theme-transition w-full">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-tr from-violet-600 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/20">
-                    <span class="font-bold text-xl text-white font-mono">λ</span>
+        <nav class="flex flex-col sm:flex-row gap-6 justify-between items-center mb-10 p-4 glass-panel rounded-2xl">
+            <div class="flex items-center gap-4 w-full sm:w-auto">
+                <div class="w-12 h-12 bg-gradient-to-tr from-violet-600 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/30 transform transition hover:scale-105 hover:rotate-3">
+                    <span class="font-bold text-2xl text-white font-mono">λ</span>
                 </div>
-                <div>
-                    <h2 class="text-sm font-bold tracking-tight text-slate-900 dark:text-white">AuraPHP Engine v2.0</h2>
-                    <div class="mt-0.5 flex flex-wrap gap-1">
-                        <span x-show="!user" class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">✨ Guest Matrix (1 Scan)</span>
-                        <span x-show="user" x-cloak class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 text-violet-400 border border-violet-500/20">🛡️ Enterprise Level Access (10 Scans)</span>
+                <div class="flex flex-col">
+                    <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">AuraPHP Engine</h2>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span class="text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 font-semibold">Systems Online</span>
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto border-t sm:border-none pt-4 sm:pt-0 border-slate-200 dark:border-zinc-900">
-                <div x-show="!user" id="google-auth-nav-mount" class="block min-w-[140px]"></div>
+            <div class="flex items-center justify-between w-full sm:w-auto gap-4">
+                <div x-show="!user" id="google-auth-nav-mount" class="block"></div>
 
-                <div x-show="user" x-cloak class="flex items-center gap-2 sm:gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-1 sm:p-1.5 pr-2 sm:pr-3 shadow-md max-w-[240px] sm:max-w-none">
-                    <img :src="user?.picture" class="w-6 h-6 min-w-[24px] rounded-lg object-cover ring-2 ring-violet-500/20" alt="Identity Image">
-                    <span x-text="user?.name" class="text-xs font-semibold text-slate-600 dark:text-zinc-300 truncate max-w-[80px] sm:max-w-none"></span>
-                    <button @click="logout()" class="text-[11px] font-bold text-red-500 hover:text-red-400 pl-2 border-l border-slate-200 dark:border-zinc-800 shrink-0">Exit</button>
+                <div x-show="user" x-cloak class="flex items-center gap-3 bg-white/50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 rounded-xl p-1.5 pr-4 transition-all hover:bg-white dark:hover:bg-zinc-800">
+                    <img :src="user?.picture" class="w-8 h-8 rounded-lg object-cover ring-2 ring-violet-500/30" alt="Avatar">
+                    <div class="flex flex-col items-start">
+                        <span x-text="user?.name" class="text-sm font-semibold text-slate-800 dark:text-zinc-200 truncate max-w-[120px]"></span>
+                        <span class="text-[9px] font-mono text-violet-500 uppercase tracking-widest">Verified</span>
+                    </div>
+                    <button @click="logout()" class="ml-2 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Disconnect">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
                 </div>
 
-                <button @click="toggleTheme()" class="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:scale-105 active:scale-95 theme-transition shadow-sm shrink-0">
-                    <svg x-show="darkMode" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path></svg>
-                    <svg x-show="!darkMode" class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                <div class="h-8 w-px bg-slate-200 dark:bg-zinc-800 hidden sm:block"></div>
+
+                <button @click="toggleTheme()" class="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white/50 dark:bg-zinc-800/50 hover:bg-white dark:hover:bg-zinc-700 transition-all hover:scale-105 active:scale-95 group">
+                    <svg x-show="darkMode" class="w-5 h-5 text-amber-400 group-hover:rotate-45 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path></svg>
+                    <svg x-show="!darkMode" class="w-5 h-5 text-slate-700 group-hover:-rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                 </button>
             </div>
         </nav>
 
-        <main class="space-y-6 sm:space-y-8">
-            <section class="bg-white dark:bg-zinc-900/40 border border-slate-200 dark:border-zinc-900 rounded-2xl shadow-xl overflow-hidden theme-transition relative">
-                
-                <div x-show="loading" class="absolute top-0 left-0 right-0 h-[3px] shimmer-bar animate-shimmer z-10"></div>
-
-                <div class="flex flex-col sm:flex-row gap-3 sm:items-center justify-between px-4 sm:px-6 py-4 bg-slate-50 dark:bg-zinc-900/40 border-b border-slate-200 dark:border-zinc-900 theme-transition">
+        <main class="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+            
+            <section class="lg:col-span-5 flex flex-col h-[600px] glass-panel rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 hover:shadow-violet-500/10">
+                <div class="px-6 py-4 border-b border-slate-200/50 dark:border-zinc-800/50 bg-white/40 dark:bg-zinc-900/40 flex items-center justify-between backdrop-blur-md">
                     <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-red-400/60"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400/60"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400/60"></span>
-                        <span class="text-xs font-mono text-slate-400 dark:text-zinc-500 ml-2">architecture_payload.php</span>
+                        <div class="flex gap-1.5">
+                            <div class="w-3 h-3 rounded-full bg-red-400/80 shadow-inner"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-400/80 shadow-inner"></div>
+                            <div class="w-3 h-3 rounded-full bg-emerald-400/80 shadow-inner"></div>
+                        </div>
+                        <span class="text-xs font-mono text-slate-500 dark:text-zinc-500 ml-3 tracking-wide">input_matrix.php</span>
                     </div>
-                    <button @click="analyze()" :disabled="loading || !code" class="w-full sm:w-auto justify-center bg-zinc-900 dark:bg-violet-600 hover:bg-zinc-800 dark:hover:bg-violet-500 text-white px-5 py-2.5 rounded-xl font-medium text-xs transition-all disabled:opacity-30 disabled:pointer-events-none flex items-center gap-2 min-h-[44px] sm:min-h-0 shadow-md">
-                        <span x-show="loading" class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                        <span x-text="loading ? 'Compiling Model...' : 'Optimize Core Architecture'"></span>
-                    </button>
                 </div>
 
-                <div class="relative">
-                    <textarea x-model="code" :disabled="loading" maxlength="4000" class="w-full h-48 sm:h-64 bg-transparent p-4 sm:p-6 font-mono text-xs sm:text-sm leading-relaxed focus:outline-none resize-none text-slate-800 dark:text-zinc-200 disabled:opacity-50" placeholder="// Paste legacy procedural code or architectural patterns here..."></textarea>
+                <div class="relative flex-grow flex flex-col">
+                    <textarea x-model="code" :disabled="loading" maxlength="4000" spellcheck="false"
+                              class="flex-grow w-full bg-transparent p-6 font-mono text-sm leading-loose focus:outline-none resize-none text-slate-800 dark:text-zinc-300 placeholder-slate-400 dark:placeholder-zinc-600 transition-opacity" 
+                              :class="{ 'opacity-30': loading }"
+                              placeholder="&lt;?php&#10;// Paste legacy PHP codebase here...&#10;// The engine will map vulnerabilities&#10;// and output secured architecture.&#10;?&gt;"></textarea>
                     
-                    <div x-show="loading" x-cloak x-transition.opacity.duration.300ms class="absolute inset-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center space-y-3">
-                        <div class="relative w-12 h-12 flex items-center justify-center">
-                            <div class="absolute inset-0 rounded-xl border-2 border-violet-500/20 animate-pulse"></div>
-                            <div class="w-8 h-8 rounded-lg border-2 border-transparent border-t-violet-500 border-r-fuchsia-500 animate-spin"></div>
+                    <div x-show="loading" x-transition.opacity class="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center glass-panel">
+                        <div class="relative w-16 h-16 mb-6">
+                            <div class="absolute inset-0 border-4 border-violet-500/20 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-violet-500 rounded-full border-t-transparent animate-spin"></div>
+                            <div class="absolute inset-0 flex items-center justify-center text-violet-500 font-mono text-xs font-bold animate-pulse-glow">AI</div>
                         </div>
-                        <div class="space-y-1">
-                            <p class="text-xs font-bold font-mono text-violet-500 dark:text-violet-400 tracking-wider uppercase">Processing Request</p>
-                            <p x-text="loadingText" class="text-xs text-slate-500 dark:text-zinc-400 font-sans tracking-tight animate-pulse transition-all duration-300"></p>
+                        <div class="w-full max-w-[200px] h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-full overflow-hidden mb-3">
+                            <div class="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 w-1/2 animate-[sweep_1.5s_ease-in-out_infinite]"></div>
                         </div>
+                        <p x-text="loadingText" class="text-sm font-mono text-slate-600 dark:text-zinc-400 h-6 transition-all duration-300"></p>
                     </div>
 
-                    <div class="absolute bottom-3 right-3 text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 dark:text-zinc-500">
-                        <span x-text="code.length">0</span> / 4000
+                    <div class="absolute bottom-4 left-6 flex gap-3">
+                        <div class="text-[10px] font-mono px-2.5 py-1 rounded-md bg-white/50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-zinc-400 backdrop-blur-md">
+                            Length: <span x-text="code.length" class="text-slate-800 dark:text-zinc-200 font-bold">0</span>/4000
+                        </div>
                     </div>
+                    
+                    <button @click="showLimitModal = true" class="absolute bottom-4 left-32 text-[10px] font-mono px-2.5 py-1 rounded-md bg-white/50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 text-slate-500 hover:text-violet-500 cursor-pointer transition-colors backdrop-blur-md hidden sm:block" title="Test Modal View">
+                        Simulate Modal
+                    </button>
+
+                    <button @click="analyze()" :disabled="loading || !code" 
+                            class="absolute bottom-4 right-6 btn-premium bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-zinc-200 text-white dark:text-slate-900 px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed flex items-center gap-2 group">
+                        <span x-text="loading ? 'Processing...' : 'Execute Scan'"></span>
+                        <svg x-show="!loading" class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </button>
                 </div>
             </section>
 
-            <section x-cloak x-show="result" x-transition:enter="transition ease-out duration-400" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <section class="lg:col-span-7 flex flex-col h-[600px] glass-panel rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 relative group">
                 
-                <div class="lg:col-span-2 bg-white dark:bg-zinc-900/40 border border-slate-200 dark:border-zinc-900 rounded-2xl p-4 sm:p-6 shadow-xl theme-transition flex flex-col">
-                    <div class="flex items-center gap-2.5 mb-4 text-red-500 dark:text-red-400">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <h3 class="font-bold text-xs font-mono tracking-wider uppercase text-slate-400 dark:text-zinc-400">Vulnerability Log</h3>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-zinc-950/60 p-4 rounded-xl border border-slate-100 dark:border-zinc-900/60 theme-transition flex-1 max-h-64 lg:max-h-none overflow-y-auto">
-                        <p x-text="result ? result.analysis : ''" class="text-xs sm:text-sm text-slate-600 dark:text-zinc-300 leading-relaxed font-sans whitespace-pre-line"></p>
-                    </div>
+                <div x-show="!result" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-zinc-600 space-y-4">
+                    <svg class="w-16 h-16 opacity-20" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    <p class="font-mono text-sm">Awaiting payload sequence...</p>
                 </div>
 
-                <div class="lg:col-span-3 bg-white dark:bg-zinc-900/40 border border-slate-200 dark:border-zinc-900 rounded-2xl shadow-xl overflow-hidden theme-transition flex flex-col">
-                    <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-50 dark:bg-zinc-900/40 border-b border-slate-200 dark:border-zinc-900">
-                        <div class="flex items-center gap-2 text-emerald-500 dark:text-emerald-400">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                            <span class="text-xs font-bold font-mono tracking-wider uppercase text-slate-400 dark:text-zinc-400">Clean Architecture Output</span>
+                <div x-show="result" x-cloak class="flex flex-col h-full"
+                     x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0">
+                    
+                    <div class="px-6 py-4 border-b border-slate-200/50 dark:border-zinc-800/50 bg-white/40 dark:bg-zinc-900/40 flex items-center justify-between backdrop-blur-md">
+                        <span class="text-xs font-mono font-bold tracking-widest uppercase gradient-text">Refactored Output</span>
+                        <div class="flex gap-2">
+                            <button @click="copyOutput()" class="p-1.5 rounded-lg bg-white/50 dark:bg-zinc-800/50 hover:bg-violet-500 hover:text-white border border-slate-200 dark:border-zinc-700 text-slate-500 transition-all active:scale-95 group/copy relative">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                <span class="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-800 text-white text-[10px] rounded opacity-0 group-hover/copy:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Copy Code</span>
+                            </button>
                         </div>
-                        <button @click="copyOutput()" class="text-xs text-slate-400 hover:text-violet-500 font-mono flex items-center gap-1.5 transition-colors min-h-[32px]">
-                            <span x-text="copied ? 'Copied Successfully!' : 'Copy Module'"></span>
-                        </button>
                     </div>
-                    <div class="p-0 m-0 overflow-y-auto flex-1 bg-slate-50 dark:bg-zinc-950/60 max-h-80 lg:max-h-none" x-effect="if(result) { $nextTick(() => { document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)) }) }">
-                        <pre class="m-0 p-4 sm:p-6 text-xs font-mono leading-relaxed !bg-transparent"><code class="language-php" x-text="result ? result.refactored_code : ''"></code></pre>
+
+                    <div class="flex-grow flex flex-col overflow-hidden">
+                        <div class="h-1/3 min-h-[120px] p-6 overflow-y-auto border-b border-slate-200/50 dark:border-zinc-800/50 bg-slate-50/50 dark:bg-zinc-950/50">
+                            <h4 class="text-[10px] font-mono font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500 mb-3 flex items-center gap-2">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Architecture Diagnostics
+                            </h4>
+                            <p x-text="result?.analysis" class="text-sm text-slate-700 dark:text-zinc-300 leading-relaxed font-sans"></p>
+                        </div>
+                        
+                        <div class="h-2/3 flex-grow overflow-y-auto bg-[#1a1b26]" x-effect="if(result) { $nextTick(() => { document.querySelectorAll('pre code').forEach(el => { el.removeAttribute('data-highlighted'); hljs.highlightElement(el) }) }) }">
+                            <pre class="m-0 p-6 text-sm font-mono leading-relaxed h-full"><code class="language-php h-full" x-text="result?.refactored_code"></code></pre>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -176,22 +264,19 @@
     <script>
         function app() {
             return {
-                code: '', loading: false, result: null, copied: false, darkMode: true, user: null, token: '',
+                code: '', loading: false, result: null, darkMode: true, user: null, token: '',
                 showLimitModal: false, loadingText: '', loadingInterval: null,
                 toast: { show: false, message: '', type: 'info' },
                 
-                // ⏬ CRITICAL CONFIGURATION: PASTE VALID GOOGLE CLIENT ID STRING HERE ⏬
+                // ⏬ CRITICAL CONFIGURATION: PASTE YOUR GOOGLE CLIENT ID RIGHT HERE ⏬
                 googleClientId: '719529248726-a4bm2jbie5ufoom3n0kl572hav9p32g7.apps.googleusercontent.com',
 
-                // COMPREHENSIVE TEXT PHRASE ROTATOR FOR MAX ENGAGEMENT UX
                 loadingPhrases: [
+                    "Initializing syntax matrix...",
                     "Isolating AST structural anomalies...",
-                    "Smelling deep procedural mutations...",
-                    "Sanitizing vulnerable parameter streams...",
-                    "Mapping query vectors against modern PDO strategies...",
-                    "Injecting strict dependency contracts...",
-                    "Polishing operational resource profiles...",
-                    "Validating type system boundaries..."
+                    "Injecting strict PDO parameters...",
+                    "Applying XSS sanitization layers...",
+                    "Compiling secure production build..."
                 ],
 
                 init() {
@@ -200,59 +285,55 @@
                     const savedUser = localStorage.getItem('aura_user');
                     const savedToken = localStorage.getItem('aura_token');
                     if (savedUser && savedToken) {
-                        this.user = json_decode_safe(savedUser);
-                        this.token = savedToken;
+                        this.user = json_decode_safe(savedUser); this.token = savedToken;
                     }
+                    window.addEventListener('load', () => this.initializeGoogleSDK());
+                },
 
-                    window.addEventListener('load', () => {
-                        if (window.google) {
+                initializeGoogleSDK() {
+                    if (window.google && window.google.accounts) {
+                        try {
                             google.accounts.id.initialize({
                                 client_id: this.googleClientId,
                                 callback: (response) => this.handleGoogleLogin(response),
                                 ux_mode: 'popup'
                             });
                             this.renderGoogleButtons();
-                        }
-                    });
+                        } catch (err) { console.error("Client Init Error", err); }
+                    } else { setTimeout(() => this.initializeGoogleSDK(), 500); }
                 },
 
                 triggerToast(message, type = 'info') {
-                    this.toast.message = message;
-                    this.toast.type = type;
-                    this.toast.show = true;
+                    this.toast.message = message; this.toast.type = type; this.toast.show = true;
                     setTimeout(() => { this.toast.show = false; }, 4000);
                 },
 
                 renderGoogleButtons() {
                     const navMount = document.getElementById('google-auth-nav-mount');
                     const modalMount = document.getElementById('google-auth-modal-mount');
-                    const config = {
-                        theme: this.darkMode ? 'dark' : 'outline', size: 'medium', text: 'signin_with', shape: 'pill', width: '150'
-                    };
-                    if(!this.user && navMount) { google.accounts.id.renderButton(navMount, config); }
-                    if(!this.user && modalMount) { google.accounts.id.renderButton(modalMount, config); }
+                    const config = { theme: this.darkMode ? 'filled_black' : 'outline', size: 'large', text: 'continue_with', shape: 'pill', width: '250' };
+                    
+                    if(!this.user && navMount) google.accounts.id.renderButton(navMount, { ...config, size: 'medium', width: '180' });
+                    if(!this.user && modalMount) google.accounts.id.renderButton(modalMount, config);
                 },
 
                 handleGoogleLogin(response) {
                     this.token = response.credential;
                     localStorage.setItem('aura_token', this.token);
-                    
-                    const base64Url = this.token.split('.')[1];
-                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-                    
-                    this.user = JSON.parse(jsonPayload);
-                    localStorage.setItem('aura_user', JSON.stringify(this.user));
-                    this.showLimitModal = false;
-                    this.triggerToast("Identity bound verified.", "success");
-                    window.location.reload();
+                    try {
+                        const base64Url = this.token.split('.')[1];
+                        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                        this.user = JSON.parse(jsonPayload);
+                        localStorage.setItem('aura_user', JSON.stringify(this.user));
+                        this.showLimitModal = false;
+                        this.triggerToast("Authentication successful. Tier-1 Unlocked.", "success");
+                        setTimeout(() => window.location.reload(), 1500);
+                    } catch(e) { this.triggerToast("Authentication parsing failed.", "error"); }
                 },
 
                 logout() {
-                    localStorage.removeItem('aura_user');
-                    localStorage.removeItem('aura_token');
-                    this.user = null;
-                    this.token = '';
+                    localStorage.removeItem('aura_user'); localStorage.removeItem('aura_token');
                     window.location.reload();
                 },
 
@@ -260,7 +341,7 @@
                     this.darkMode = !this.darkMode;
                     localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
                     this.switchHighlightTheme(this.darkMode);
-                    setTimeout(() => { this.renderGoogleButtons(); }, 100);
+                    setTimeout(() => this.renderGoogleButtons(), 100);
                 },
 
                 switchHighlightTheme(isDark) {
@@ -268,66 +349,47 @@
                     document.getElementById('hl-light').disabled = isDark;
                 },
 
-                startLoadingSequence() {
-                    this.loading = true;
-                    this.result = null;
-                    this.copied = false;
-                    let phraseIndex = 0;
-                    this.loadingText = this.loadingPhrases[phraseIndex];
+                async analyze() {
+                    if (!this.code || this.loading) return;
                     
+                    this.loading = true; this.result = null; 
+                    let phraseIndex = 0; this.loadingText = this.loadingPhrases[phraseIndex];
                     this.loadingInterval = setInterval(() => {
                         phraseIndex = (phraseIndex + 1) % this.loadingPhrases.length;
                         this.loadingText = this.loadingPhrases[phraseIndex];
-                    }, 1400);
-                },
-
-                stopLoadingSequence() {
-                    clearInterval(this.loadingInterval);
-                    this.loading = false;
-                },
-
-                async analyze() {
-                    if (!this.code || this.loading) return;
-                    this.startLoadingSequence();
+                    }, 1200); // Faster cycle for modern feel
                     
                     try {
                         const headers = { 'Content-Type': 'application/json' };
                         if (this.token) { headers['Authorization'] = `Bearer ${this.token}`; }
 
                         const res = await fetch('/api/analyze.php', {
-                            method: 'POST',
-                            headers: headers,
-                            body: JSON.stringify({ code: this.code })
+                            method: 'POST', headers: headers, body: JSON.stringify({ code: this.code })
                         });
                         
-                        // Check if backend rejected due to limits
                         if (res.status === 429) {
-                            this.stopLoadingSequence();
                             this.showLimitModal = true;
+                            clearInterval(this.loadingInterval); this.loading = false;
                             return;
                         }
 
                         this.result = await res.json();
                         
-                        // Fallback check if your PHP backend passes error parameters as JSON
-                        if (this.result?.error || this.result?.status === 'limit_reached') {
-                            this.result = null;
-                            this.showLimitModal = true;
+                        if (this.result?.status === 'limit_reached' || this.result?.error === 'quota_exhausted') {
+                            this.result = null; this.showLimitModal = true;
                         } else {
-                            this.triggerToast("Refactoring compilation complete.", "success");
+                            this.triggerToast("Architecture optimized successfully.", "success");
                         }
                     } catch (e) {
-                        this.triggerToast("Engine pipeline connection failure.", "error");
+                        this.triggerToast("Network link failed. Please retry.", "error");
                     }
-                    this.stopLoadingSequence();
+                    clearInterval(this.loadingInterval); this.loading = false;
                 },
 
                 async copyOutput() {
                     if (!this.result?.refactored_code) return;
                     await navigator.clipboard.writeText(this.result.refactored_code);
-                    this.copied = true;
-                    this.triggerToast("Module copied to clipboard", "success");
-                    setTimeout(() => this.copied = false, 2000);
+                    this.triggerToast("Code copied to clipboard", "success");
                 }
             }
         }
