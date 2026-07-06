@@ -26,15 +26,6 @@
                     fontFamily: {
                         sans: ['Plus Jakarta Sans', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    animation: {
-                        'shimmer': 'shimmer 2.5s infinite linear',
-                    },
-                    keyframes: {
-                        shimmer: {
-                            '0%': { backgroundPosition: '-200% 0' },
-                            '100%': { backgroundPosition: '200% 0' }
-                        }
                     }
                 }
             }
@@ -96,12 +87,17 @@
                     </button>
                 </div>
 
-                <div class="relative">
+                <div class="relative group">
                     <textarea 
                         x-model="code" 
+                        maxlength="4000"
                         class="w-full h-56 bg-transparent p-6 font-mono text-sm leading-relaxed focus:outline-none resize-none placeholder:text-slate-300 dark:placeholder:text-zinc-700 text-slate-800 dark:text-zinc-200" 
                         placeholder="// Paste legacy or unoptimized PHP code structural frameworks here..."
                     ></textarea>
+                    
+                    <div class="absolute bottom-4 right-4 text-xs font-mono px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 theme-transition text-slate-400 dark:text-zinc-500">
+                        <span x-text="code.length" :class="code.length > 3500 ? 'text-amber-500 font-bold' : ''">0</span> / 4000 chars max
+                    </div>
                 </div>
             </section>
 
@@ -161,10 +157,9 @@
                 loading: false,
                 result: null,
                 copied: false,
-                darkMode: true, // Defaults to elegant Dark Mode out of the box
+                darkMode: true,
 
                 init() {
-                    // Automatically load stored user theme configurations if they exist
                     if (localStorage.getItem('theme') === 'light') {
                         this.darkMode = false;
                         this.switchHighlightTheme(false);
