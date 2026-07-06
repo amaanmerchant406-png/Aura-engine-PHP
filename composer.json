@@ -1,0 +1,12 @@
+{
+    "name": "a.m/auraphp",
+    "authors": [
+        {
+            "name": "AMAAN MERCHANT",
+            "email": "amaanmerchant406@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}

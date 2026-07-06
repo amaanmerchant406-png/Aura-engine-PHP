@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraPHP | AI Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen p-6 font-sans">
+    <div class="max-w-5xl mx-auto tracking-tight">
+        <header class="mb-10 border-b border-gray-800 pb-6">
+            <span class="text-xs font-mono text-purple-400 uppercase tracking-widest bg-purple-950/50 px-3 py-1 rounded-full border border-purple-900/50">PHP 8.4 + Serverless</span>
+            <h1 class="text-4xl font-extrabold mt-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">AuraPHP Refactor Engine</h1>
+        </header>
+
+        <div x-data="app()" class="space-y-6">
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 shadow-xl">
+                <label class="block text-sm font-mono text-gray-400 mb-2">// Paste target PHP code here</label>
+                <textarea x-model="code" class="w-full h-44 bg-gray-950 p-4 rounded-lg border border-gray-800 font-mono text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition" placeholder="<?php echo $unsecured_input; ?>"></textarea>
+                <div class="flex justify-end mt-4">
+                    <button @click="analyze()" :disabled="loading" class="bg-purple-600 hover:bg-purple-500 text-white px-5 py-2.5 rounded-lg font-medium transition text-sm disabled:opacity-40 shadow-lg shadow-purple-900/20">
+                        <span x-text="loading ? 'Processing Architecture...' : 'Optimize Core Code'"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div x-show="result" class="grid grid-cols-1 md:grid-cols-2 gap-6" style="display: none;">
+                <div class="bg-gray-900 p-5 rounded-xl border border-gray-800">
+                    <h3 class="font-mono text-sm text-red-400 border-b border-gray-800 pb-2 mb-3"># Security & Performance Metrics</h3>
+                    <p x-text="result.analysis" class="text-sm text-gray-400 leading-relaxed font-sans"></p>
+                </div>
+                <div class="bg-gray-900 p-5 rounded-xl border border-gray-800">
+                    <h3 class="font-mono text-sm text-emerald-400 border-b border-gray-800 pb-2 mb-3"># Refactored Modern Code</h3>
+                    <pre class="text-xs text-emerald-300 font-mono overflow-x-auto p-3 bg-gray-950 rounded-lg border border-gray-800/50" x-text="result.refactored_code"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function app() {
+            return {
+                code: '',
+                loading: false,
+                result: null,
+                async analyze() {
+                    if (!this.code) return;
+                    this.loading = true;
+                    this.result = null;
+                    try {
+                        const res = await fetch('/api/analyze.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ code: this.code })
+                        });
+                        this.result = await res.json();
+                    } catch (e) {
+                        alert('An execution error occurred.');
+                    }
+                    this.loading = false;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
