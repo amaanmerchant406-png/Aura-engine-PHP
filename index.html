@@ -1,124 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" x-data="app()" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuraPHP | Modern AI Refactor Engine</title>
+    <title>AuraPHP // Professional AI Refactor Engine</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css" id="hl-dark">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-light.min.css" id="hl-light" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script>
+        // Configure Tailwind customization with custom animations and transitions
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    animation: {
+                        'shimmer': 'shimmer 2.5s infinite linear',
+                    },
+                    keyframes: {
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
     <style>
-        /* Define modern fonts */
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-        /* Custom glow animation on textarea focus */
-        textarea:focus {
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-        }
-
-        /* Smooth results panel animation */
         [x-cloak] { display: none !important; }
+        body { font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
+        /* Smooth color phase transitions across the whole document */
+        .theme-transition {
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen p-6 md:p-12 transition-colors duration-300" x-data="app()">
-    
-    <div class="max-w-7xl mx-auto tracking-tight">
+<body class="bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-50 min-h-screen theme-transition antialiased">
+
+    <div class="max-w-7xl mx-auto px-4 py-8 md:py-12">
         
-        <header class="mb-12 text-center pb-8 border-b border-gray-900">
-            <div class="flex items-center justify-center gap-3 mb-4">
-                <div class="w-10 h-10 bg-purple-950 rounded-xl flex items-center justify-center border border-purple-800 shadow-inner">
-                    <span class="font-bold text-2xl text-purple-400">A</span>
+        <nav class="flex justify-between items-center mb-12 pb-6 border-b border-slate-200 dark:border-zinc-900 theme-transition">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-violet-500/20">
+                    <span class="font-bold text-lg text-white font-mono">λ</span>
                 </div>
-                <span class="text-xs font-mono text-purple-400 uppercase tracking-widest bg-purple-950/50 px-4 py-1.5 rounded-full border border-purple-900/50 shadow-sm">AI Core v8.4+</span>
+                <div>
+                    <h2 class="text-sm font-bold tracking-tight text-slate-900 dark:text-white">AuraPHP Engine</h2>
+                    <p class="text-xs text-slate-400 dark:text-zinc-500 font-mono">// core.compiler.v8</p>
+                </div>
             </div>
-            <h1 class="text-5xl font-extrabold mt-3 bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-gray-500 pb-2">
-                AuraPHP Refactor Engine
-            </h1>
-            <p class="text-gray-500 mt-4 max-w-xl mx-auto leading-relaxed">Instantly analyze and modernize legacy PHP architecture with secure, serverless AI.</p>
-        </header>
 
-        <div class="space-y-10">
-            <section class="bg-gray-900 p-6 md:p-8 rounded-3xl border border-gray-800 shadow-2xl transition-all duration-300 hover:shadow-purple-900/10">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-800">
-                    <div>
-                        <h2 class="text-xl font-bold tracking-tight text-white">Paste Source Code</h2>
-                        <p class="text-sm text-gray-500 font-mono mt-1">// Target: app/LegacyModule.php</p>
+            <button 
+                @click="toggleTheme()" 
+                class="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all duration-200 shadow-sm transform active:scale-95 transform-gpu"
+                aria-label="Toggle Interface Theme"
+            >
+                <svg x-show="darkMode" class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path></svg>
+                <svg x-show="!darkMode" class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+        </nav>
+
+        <main class="space-y-8">
+            
+            <section class="bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden theme-transition">
+                <div class="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-zinc-900/40 border-b border-slate-200 dark:border-zinc-900 theme-transition">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-red-400/70"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-400/70"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-400/70"></span>
+                        <span class="text-xs font-mono text-slate-400 dark:text-zinc-500 ml-2">source_code.php</span>
                     </div>
-                    <div class="flex justify-start md:justify-end">
-                        <button 
-                            @click="analyze()" 
-                            :disabled="loading" 
-                            class="bg-purple-600 hover:bg-purple-500 text-white px-7 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.97] text-sm disabled:opacity-40 disabled:scale-100 flex items-center gap-2.5 shadow-lg shadow-purple-950/40"
-                        >
-                            <template x-if="!loading">
-                                <span class="w-2.5 h-2.5 bg-white/70 rounded-full animate-pulse"></span>
-                            </template>
-                            <template x-if="loading">
-                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </template>
-                            <span x-text="loading ? 'Processing Architecture...' : 'Optimize Core Code'"></span>
-                        </button>
-                    </div>
+                    
+                    <button 
+                        @click="analyze()" 
+                        :disabled="loading || !code" 
+                        class="relative bg-zinc-900 dark:bg-violet-600 hover:bg-zinc-800 dark:hover:bg-violet-500 text-white px-5 py-2 rounded-xl font-medium text-xs transition-all duration-300 transform active:scale-95 disabled:opacity-30 disabled:scale-100 flex items-center gap-2 shadow-md shadow-violet-950/20 transform-gpu will-change-transform"
+                    >
+                        <span x-show="loading" class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        <span x-text="loading ? 'Compiling Metrics...' : 'Optimize Core Architecture'"></span>
+                    </button>
                 </div>
 
-                <div class="relative group">
+                <div class="relative">
                     <textarea 
                         x-model="code" 
-                        class="w-full h-56 bg-gray-950/70 p-6 rounded-2xl border border-gray-800/80 font-mono text-sm leading-relaxed focus:border-purple-600 focus:ring-1 focus:ring-purple-600 outline-none transition-all duration-300 resize-y group-hover:border-gray-700 placeholder:text-gray-700" 
-                        placeholder="<?php echo $unsecured_input; ?>"
+                        class="w-full h-56 bg-transparent p-6 font-mono text-sm leading-relaxed focus:outline-none resize-none placeholder:text-slate-300 dark:placeholder:text-zinc-700 text-slate-800 dark:text-zinc-200" 
+                        placeholder="// Paste legacy or unoptimized PHP code structural frameworks here..."
                     ></textarea>
-                    <div class="absolute bottom-4 right-4 text-xs text-gray-700 font-mono group-hover:text-gray-600">PHP 8.2+ Input</div>
                 </div>
             </section>
 
             <section 
                 x-cloak
                 x-show="result" 
-                x-transition:enter="transition ease-out duration-500"
-                x-transition:enter-start="opacity-0 transform translate-y-10 scale-95"
-                x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
-                class="grid grid-cols-1 md:grid-cols-2 gap-8" 
+                x-transition:enter="transition ease-out duration-500 transform-gpu will-change-transform"
+                x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                class="grid grid-cols-1 lg:grid-cols-5 gap-6"
             >
-                
-                <div class="bg-gray-900 p-7 rounded-3xl border border-gray-800 shadow-2xl transition-all hover:shadow-red-900/10">
-                    <div class="flex items-center gap-3.5 mb-6 pb-6 border-b border-gray-800">
-                        <div class="w-10 h-10 bg-red-950/50 rounded-full flex items-center justify-center border border-red-900/50">
-                            <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                        <h3 class="font-bold text-xl tracking-tight text-white"># Security & Performance Metrics</h3>
+                <div class="lg:col-span-2 bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-900 rounded-2xl p-6 shadow-xl dark:shadow-none theme-transition flex flex-col">
+                    <div class="flex items-center gap-2.5 mb-4 text-red-500 dark:text-red-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <h3 class="font-semibold text-sm tracking-tight text-slate-900 dark:text-zinc-100">Vulnerability & Architecture Log</h3>
                     </div>
-                    <p x-text="result.analysis" class="text-sm text-gray-400 leading-relaxed font-sans px-2"></p>
+                    <div class="bg-slate-50 dark:bg-zinc-950 p-4 rounded-xl border border-slate-100 dark:border-zinc-900/80 theme-transition flex-1">
+                        <p x-text="result ? result.analysis : ''" class="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed font-sans whitespace-pre-line"></p>
+                    </div>
                 </div>
-                
-                <div class="bg-gray-900 p-7 rounded-3xl border border-gray-800 shadow-2xl transition-all hover:shadow-emerald-900/10">
-                    <div class="flex items-center gap-3.5 mb-6 pb-6 border-b border-gray-800">
-                        <div class="w-10 h-10 bg-emerald-950/50 rounded-full flex items-center justify-center border border-emerald-900/50">
-                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+
+                <div class="lg:col-span-3 bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-900 rounded-2xl shadow-xl dark:shadow-none overflow-hidden theme-transition flex flex-col">
+                    <div class="flex items-center justify-between px-6 py-3.5 bg-slate-50 dark:bg-zinc-900/40 border-b border-slate-200 dark:border-zinc-900 theme-transition">
+                        <div class="flex items-center gap-2 text-emerald-500 dark:text-emerald-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            <span class="text-xs font-semibold tracking-tight text-slate-900 dark:text-zinc-100">Refactored Production Payload</span>
                         </div>
-                        <h3 class="font-bold text-xl tracking-tight text-white"># Refactored Modern Code</h3>
-                    </div>
-                    <div class="relative group">
-                        <pre 
-                            class="text-sm text-emerald-300 font-mono overflow-x-auto p-6 bg-gray-950 rounded-2xl border border-gray-800/80 leading-relaxed max-h-[32rem]" 
-                            x-text="result.refactored_code"
-                        ></pre>
-                        <button class="absolute top-4 right-4 bg-gray-800/80 p-1.5 rounded-lg border border-gray-700/50 hover:bg-gray-700 transition" title="Copy to Clipboard">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        
+                        <button 
+                            @click="copyOutput()" 
+                            class="text-xs text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 font-mono transition flex items-center gap-1.5 transform active:scale-95 transform-gpu"
+                        >
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            <span x-text="copied ? 'Copied!' : 'Copy Code'"></span>
                         </button>
+                    </div>
+                    
+                    <div 
+                        class="p-0 m-0 overflow-y-auto flex-1 bg-slate-50 dark:bg-zinc-950 theme-transition"
+                        x-effect="if(result) { $nextTick(() => { document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)) }) }"
+                    >
+                        <pre class="m-0 p-6 text-xs font-mono leading-relaxed !bg-transparent"><code class="language-php" x-text="result ? result.refactored_code : ''"></code></pre>
                     </div>
                 </div>
             </section>
-        </div>
+        </main>
         
-        <footer class="mt-20 pt-10 text-center border-t border-gray-900">
-            <p class="text-sm text-gray-700 font-mono">// Project AuraPHP | Designed for MNC Hiring Managers</p>
+        <footer class="mt-16 pt-6 border-t border-slate-200 dark:border-zinc-900 text-center theme-transition">
+            <p class="text-xs font-mono text-slate-400 dark:text-zinc-600 tracking-tight">// Engine optimized for async cold-starts & GPU hardware paint pipelines.</p>
         </footer>
     </div>
 
@@ -128,10 +160,40 @@
                 code: '',
                 loading: false,
                 result: null,
+                copied: false,
+                darkMode: true, // Defaults to elegant Dark Mode out of the box
+
+                init() {
+                    // Automatically load stored user theme configurations if they exist
+                    if (localStorage.getItem('theme') === 'light') {
+                        this.darkMode = false;
+                        this.switchHighlightTheme(false);
+                    }
+                },
+
+                toggleTheme() {
+                    this.darkMode = !this.darkMode;
+                    localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
+                    this.switchHighlightTheme(this.darkMode);
+                },
+
+                switchHighlightTheme(isDark) {
+                    const darkStyle = document.getElementById('hl-dark');
+                    const lightStyle = document.getElementById('hl-light');
+                    if (isDark) {
+                        darkStyle.removeAttribute('disabled');
+                        lightStyle.setAttribute('disabled', 'true');
+                    } else {
+                        lightStyle.removeAttribute('disabled');
+                        darkStyle.setAttribute('disabled', 'true');
+                    }
+                },
+
                 async analyze() {
-                    if (!this.code) return;
+                    if (!this.code || this.loading) return;
                     this.loading = true;
                     this.result = null;
+                    this.copied = false;
                     try {
                         const res = await fetch('/api/analyze.php', {
                             method: 'POST',
@@ -140,9 +202,20 @@
                         });
                         this.result = await res.json();
                     } catch (e) {
-                        alert('An execution error occurred.');
+                        alert('A critical architectural or engine network error occurred.');
                     }
                     this.loading = false;
+                },
+
+                async copyOutput() {
+                    if (!this.result || !this.result.refactored_code) return;
+                    try {
+                        await navigator.clipboard.writeText(this.result.refactored_code);
+                        this.copied = true;
+                        setTimeout(() => this.copied = false, 2000);
+                    } catch (err) {
+                        console.error('Clipboard injection failed: ', err);
+                    }
                 }
             }
         }
