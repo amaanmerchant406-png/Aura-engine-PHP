@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css" id="hl-dark">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-light.min.css" id="hl-light" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -18,27 +20,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <script>
-        // Configure Tailwind customization with custom animations and transitions
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    }
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
                 }
             }
         }
     </script>
-
     <style>
         [x-cloak] { display: none !important; }
-        body { font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
-        /* Smooth color phase transitions across the whole document */
-        .theme-transition {
-            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .theme-transition { transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-50 min-h-screen theme-transition antialiased">
@@ -47,123 +40,143 @@
         
         <nav class="flex justify-between items-center mb-12 pb-6 border-b border-slate-200 dark:border-zinc-900 theme-transition">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-violet-500/20">
+                <div class="w-9 h-9 bg-violet-600 rounded-xl flex items-center justify-center shadow-md">
                     <span class="font-bold text-lg text-white font-mono">λ</span>
                 </div>
                 <div>
                     <h2 class="text-sm font-bold tracking-tight text-slate-900 dark:text-white">AuraPHP Engine</h2>
-                    <p class="text-xs text-slate-400 dark:text-zinc-500 font-mono">// core.compiler.v8</p>
+                    <span x-show="!user" class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">✨ Guest (1 scan max)</span>
+                    <span x-show="user" x-cloak class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">🛡️ Verified Member (10 scans max)</span>
                 </div>
             </div>
 
-            <button 
-                @click="toggleTheme()" 
-                class="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all duration-200 shadow-sm transform active:scale-95 transform-gpu"
-                aria-label="Toggle Interface Theme"
-            >
-                <svg x-show="darkMode" class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path></svg>
-                <svg x-show="!darkMode" class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-            </button>
+            <div class="flex items-center gap-4">
+                <div x-show="!user" id="google-auth-mount" class="h-9 overflow-hidden rounded-xl"></div>
+
+                <div x-show="user" x-cloak class="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-1.5 pr-3 shadow-sm">
+                    <img :src="user?.picture" class="w-6 h-6 rounded-lg object-cover" alt="Profile">
+                    <span x-text="user?.name" class="text-xs font-medium text-slate-600 dark:text-zinc-300"></span>
+                    <button @click="logout()" class="text-[11px] font-bold text-red-500 hover:text-red-400 pl-2 ml-2 border-l border-slate-200 dark:border-zinc-800">Exit</button>
+                </div>
+
+                <button @click="toggleTheme()" class="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all shadow-sm">
+                    <svg x-show="darkMode" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path></svg>
+                    <svg x-show="!darkMode" class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+            </div>
         </nav>
 
         <main class="space-y-8">
-            
-            <section class="bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden theme-transition">
+            <section class="bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-900 rounded-2xl shadow-xl overflow-hidden theme-transition">
                 <div class="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-zinc-900/40 border-b border-slate-200 dark:border-zinc-900 theme-transition">
                     <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-red-400/70"></span>
-                        <span class="w-3 h-3 rounded-full bg-amber-400/70"></span>
-                        <span class="w-3 h-3 rounded-full bg-emerald-400/70"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-400/70"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400/70"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400/70"></span>
                         <span class="text-xs font-mono text-slate-400 dark:text-zinc-500 ml-2">source_code.php</span>
                     </div>
-                    
-                    <button 
-                        @click="analyze()" 
-                        :disabled="loading || !code" 
-                        class="relative bg-zinc-900 dark:bg-violet-600 hover:bg-zinc-800 dark:hover:bg-violet-500 text-white px-5 py-2 rounded-xl font-medium text-xs transition-all duration-300 transform active:scale-95 disabled:opacity-30 disabled:scale-100 flex items-center gap-2 shadow-md shadow-violet-950/20 transform-gpu will-change-transform"
-                    >
+                    <button @click="analyze()" :disabled="loading || !code" class="bg-zinc-900 dark:bg-violet-600 hover:bg-zinc-800 dark:hover:bg-violet-500 text-white px-5 py-2 rounded-xl font-medium text-xs transition-all disabled:opacity-30 flex items-center gap-2">
                         <span x-show="loading" class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                        <span x-text="loading ? 'Compiling Metrics...' : 'Optimize Core Architecture'"></span>
+                        <span x-text="loading ? 'Analyzing Architecture...' : 'Optimize Core Architecture'"></span>
                     </button>
                 </div>
 
-                <div class="relative group">
-                    <textarea 
-                        x-model="code" 
-                        maxlength="4000"
-                        class="w-full h-56 bg-transparent p-6 font-mono text-sm leading-relaxed focus:outline-none resize-none placeholder:text-slate-300 dark:placeholder:text-zinc-700 text-slate-800 dark:text-zinc-200" 
-                        placeholder="// Paste legacy or unoptimized PHP code structural frameworks here..."
-                    ></textarea>
-                    
-                    <div class="absolute bottom-4 right-4 text-xs font-mono px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 theme-transition text-slate-400 dark:text-zinc-500">
-                        <span x-text="code.length" :class="code.length > 3500 ? 'text-amber-500 font-bold' : ''">0</span> / 4000 chars max
+                <div class="relative">
+                    <textarea x-model="code" maxlength="4000" class="w-full h-56 bg-transparent p-6 font-mono text-sm leading-relaxed focus:outline-none resize-none text-slate-800 dark:text-zinc-200" placeholder="// Paste unoptimized or vulnerable legacy PHP code architecture blocks here..."></textarea>
+                    <div class="absolute bottom-4 right-4 text-xs font-mono px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 dark:text-zinc-500">
+                        <span x-text="code.length">0</span> / 4000 chars max
                     </div>
                 </div>
             </section>
 
-            <section 
-                x-cloak
-                x-show="result" 
-                x-transition:enter="transition ease-out duration-500 transform-gpu will-change-transform"
-                x-transition:enter-start="opacity-0 translate-y-8 scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                class="grid grid-cols-1 lg:grid-cols-5 gap-6"
-            >
-                <div class="lg:col-span-2 bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-900 rounded-2xl p-6 shadow-xl dark:shadow-none theme-transition flex flex-col">
+            <section x-cloak x-show="result" x-transition class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div class="lg:col-span-2 bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-900 rounded-2xl p-6 shadow-xl theme-transition flex flex-col">
                     <div class="flex items-center gap-2.5 mb-4 text-red-500 dark:text-red-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <h3 class="font-semibold text-sm tracking-tight text-slate-900 dark:text-zinc-100">Vulnerability & Architecture Log</h3>
+                        <h3 class="font-semibold text-sm tracking-tight text-slate-900 dark:text-zinc-100">Vulnerability & System Diagnostics</h3>
                     </div>
                     <div class="bg-slate-50 dark:bg-zinc-950 p-4 rounded-xl border border-slate-100 dark:border-zinc-900/80 theme-transition flex-1">
                         <p x-text="result ? result.analysis : ''" class="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed font-sans whitespace-pre-line"></p>
                     </div>
                 </div>
 
-                <div class="lg:col-span-3 bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-900 rounded-2xl shadow-xl dark:shadow-none overflow-hidden theme-transition flex flex-col">
-                    <div class="flex items-center justify-between px-6 py-3.5 bg-slate-50 dark:bg-zinc-900/40 border-b border-slate-200 dark:border-zinc-900 theme-transition">
+                <div class="lg:col-span-3 bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-900 rounded-2xl shadow-xl overflow-hidden theme-transition flex flex-col">
+                    <div class="flex items-center justify-between px-6 py-3.5 bg-slate-50 dark:bg-zinc-900/40 border-b border-slate-200 dark:border-zinc-900">
                         <div class="flex items-center gap-2 text-emerald-500 dark:text-emerald-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                            <span class="text-xs font-semibold tracking-tight text-slate-900 dark:text-zinc-100">Refactored Production Payload</span>
+                            <span class="text-xs font-semibold tracking-tight text-slate-900 dark:text-zinc-100">Refactored Clean Code Implementation</span>
                         </div>
-                        
-                        <button 
-                            @click="copyOutput()" 
-                            class="text-xs text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 font-mono transition flex items-center gap-1.5 transform active:scale-95 transform-gpu"
-                        >
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        <button @click="copyOutput()" class="text-xs text-slate-400 hover:text-slate-600 font-mono flex items-center gap-1.5">
                             <span x-text="copied ? 'Copied!' : 'Copy Code'"></span>
                         </button>
                     </div>
-                    
-                    <div 
-                        class="p-0 m-0 overflow-y-auto flex-1 bg-slate-50 dark:bg-zinc-950 theme-transition"
-                        x-effect="if(result) { $nextTick(() => { document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)) }) }"
-                    >
+                    <div class="p-0 m-0 overflow-y-auto flex-1 bg-slate-50 dark:bg-zinc-950" x-effect="if(result) { $nextTick(() => { document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)) }) }">
                         <pre class="m-0 p-6 text-xs font-mono leading-relaxed !bg-transparent"><code class="language-php" x-text="result ? result.refactored_code : ''"></code></pre>
                     </div>
                 </div>
             </section>
         </main>
-        
-        <footer class="mt-16 pt-6 border-t border-slate-200 dark:border-zinc-900 text-center theme-transition">
-            <p class="text-xs font-mono text-slate-400 dark:text-zinc-600 tracking-tight">// Engine optimized for async cold-starts & GPU hardware paint pipelines.</p>
-        </footer>
     </div>
 
     <script>
         function app() {
             return {
-                code: '',
-                loading: false,
-                result: null,
-                copied: false,
-                darkMode: true,
+                code: '', loading: false, result: null, copied: false, darkMode: true, user: null, token: '',
+                
+                // CHANGE THIS EXACT PROPERTY BELOW WITH YOUR KEY FROM GOOGLE CLOUD 
+                googleClientId: 'gen-lang-client-0046711698.apps.googleusercontent.com',
 
                 init() {
-                    if (localStorage.getItem('theme') === 'light') {
-                        this.darkMode = false;
-                        this.switchHighlightTheme(false);
+                    if (localStorage.getItem('theme') === 'light') { this.darkMode = false; this.switchHighlightTheme(false); }
+                    
+                    // Recover active login sessions
+                    const savedUser = localStorage.getItem('aura_user');
+                    const savedToken = localStorage.getItem('aura_token');
+                    if (savedUser && savedToken) {
+                        this.user = json_decode_safe(savedUser);
+                        this.token = savedToken;
                     }
+
+                    // Native Google Button Mounting Lifecycle Execution
+                    window.addEventListener('load', () => {
+                        if (window.google) {
+                            google.accounts.id.initialize({
+                                client_id: this.googleClientId,
+                                callback: (response) => this.handleGoogleLogin(response)
+                            });
+                            this.renderGoogleButton();
+                        }
+                    });
+                },
+
+                renderGoogleButton() {
+                    if(!this.user && document.getElementById('google-auth-mount')) {
+                        google.accounts.id.renderButton(document.getElementById('google-auth-mount'), {
+                            theme: this.darkMode ? 'dark' : 'outline', size: 'medium', text: 'signin_with'
+                        });
+                    }
+                },
+
+                handleGoogleLogin(response) {
+                    this.token = response.credential;
+                    localStorage.setItem('aura_token', this.token);
+                    
+                    // Decode structural payload signature properties natively
+                    const base64Url = this.token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                    
+                    this.user = JSON.parse(jsonPayload);
+                    localStorage.setItem('aura_user', JSON.stringify(this.user));
+                    window.location.reload();
+                },
+
+                logout() {
+                    localStorage.removeItem('aura_user');
+                    localStorage.removeItem('aura_token');
+                    this.user = null;
+                    this.token = '';
+                    window.location.reload();
                 },
 
                 toggleTheme() {
@@ -173,47 +186,38 @@
                 },
 
                 switchHighlightTheme(isDark) {
-                    const darkStyle = document.getElementById('hl-dark');
-                    const lightStyle = document.getElementById('hl-light');
-                    if (isDark) {
-                        darkStyle.removeAttribute('disabled');
-                        lightStyle.setAttribute('disabled', 'true');
-                    } else {
-                        lightStyle.removeAttribute('disabled');
-                        darkStyle.setAttribute('disabled', 'true');
-                    }
+                    document.getElementById('hl-dark').disabled = !isDark;
+                    document.getElementById('hl-light').disabled = isDark;
                 },
 
                 async analyze() {
                     if (!this.code || this.loading) return;
-                    this.loading = true;
-                    this.result = null;
-                    this.copied = false;
+                    this.loading = true; this.result = null; this.copied = false;
                     try {
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (this.token) { headers['Authorization'] = `Bearer ${this.token}`; }
+
                         const res = await fetch('/api/analyze.php', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: headers,
                             body: JSON.stringify({ code: this.code })
                         });
                         this.result = await res.json();
                     } catch (e) {
-                        alert('A critical architectural or engine network error occurred.');
+                        alert('System Core Engine Error.');
                     }
                     this.loading = false;
                 },
 
                 async copyOutput() {
-                    if (!this.result || !this.result.refactored_code) return;
-                    try {
-                        await navigator.clipboard.writeText(this.result.refactored_code);
-                        this.copied = true;
-                        setTimeout(() => this.copied = false, 2000);
-                    } catch (err) {
-                        console.error('Clipboard injection failed: ', err);
-                    }
+                    if (!this.result?.refactored_code) return;
+                    await navigator.clipboard.writeText(this.result.refactored_code);
+                    this.copied = true;
+                    setTimeout(() => this.copied = false, 2000);
                 }
             }
         }
+        function json_decode_safe(str) { try { return JSON.parse(str); } catch(e) { return null; } }
     </script>
 </body>
 </html>
